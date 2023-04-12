@@ -1,0 +1,82 @@
+.flexbox {
+  display: flex;
+  flex-direction: row;
+}
+
+body > div {
+  align-items: stretch;
+  height: 800px;
+}
+
+.panel {
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  flex-direction: column;
+  align-items: stretch;
+  
+  width: 200px;
+}
+
+.panelTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+#layersInput {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.modeIcon {
+  height: 20px;
+  width: 20px;
+}
+
+.modeIcon img {
+  height: auto;
+  width: 100%;
+}
+
+#borderWidthInput {
+  align-items: center;
+}
+
+#deleteInput {
+  margin: 10px;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+#deleteInput button {
+  width: 80px;
+}
+
+.workspace {
+  width: 800px;
+  /* height: 300px; */
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  border-left-style: none;
+
+  /* align-items: stretch; */
+}
+
+.workspace > canvas {
+  width: 800px;
+  height: auto;
+}
+
+
+.pixelwise {
+  z-index: 0;
+  border: blue solid 2px;
+  position:absolute;
+}
+
+.svg {
+  z-index: 1;
+  border: green solid 4px;
+  position:absolute;
+}

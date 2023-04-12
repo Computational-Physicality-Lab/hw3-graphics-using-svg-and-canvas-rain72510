@@ -1,0 +1,77 @@
+<!doctype html>
+<html> 
+ <head> 
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>SSUI HW3 - Home</title> <!-- Fonts --> 
+  <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@200;500&amp;family=Open+Sans&amp;display=swap" rel="stylesheet"> 
+  <link rel="stylesheet" type="text/css" href="style.css">
+  
+ </head> 
+ <body> 
+  <div class="flexbox"> 
+  <!-- <div class=""> -->
+   <div class="panel flexbox"> 
+    <div id="layers"> 
+     <p class="panelTitle">Layers:</p> 
+     <div>
+      <form id="layersInput" class="flexbox">
+        <div> 
+          <input type="radio" name="layer" onclick="layerSelect()"> <label>Show Canvas layer</label> 
+        </div> 
+        <div> 
+          <input type="radio" name="layer" onclick="layerSelect()"> <label>Show SVG layer</label> 
+        </div> 
+        <div> 
+          <input type="radio" name="layer" onclick="layerSelect()"> <label>Show both layers</label> 
+        </div> 
+      </form>
+    </div>
+    </div> 
+    <div id="mode"> 
+     <p class="panelTitle">Mode:</p> 
+     <div id="modeInput" class="flexbox"> 
+      <div class="modeIcon"> 
+       <img src="assets/cursor.png" alt="cursor"> 
+      </div> 
+      <div class="modeIcon"> 
+       <img src="assets/line.png" alt="line"> 
+      </div> 
+      <div></div> 
+      <div></div> 
+     </div> 
+    </div> 
+    <div id="borderColor"> 
+     <p class="panelTitle">Border color:</p> 
+    </div> 
+    <div id="borderWidth"> 
+     <p class="panelTitle">Border width:</p> 
+     <div id="borderWidthInput" class="flexbox"> 
+      <input type="range" min="1" max="30" value="3"> 
+      <p> 3 </p> 
+     </div>
+    </div> 
+    <div id="delete"> 
+     <p class="panelTitle">Delete:</p> 
+     <div id="deleteInput" class="flexbox"> 
+      <div> <button>Delete</button> </div>
+      <div> <button>Delete All</button> </div>
+     </div> 
+    </div> 
+   </div>
+
+
+   <!-- <div class="workspace flexbox"> -->
+   <div class="workspace">
+    <canvas class="canvas pixelwise">
+
+    </canvas>
+    <svg class="canvas svg" id="object-svg">
+
+    </svg>
+    
+   </div>
+  </div> 
+  <script src="main.js" defer></script>
+ </body>
+</html>
