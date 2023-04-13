@@ -8,7 +8,7 @@
   <link rel="stylesheet" type="text/css" href="style.css">
   <script src="main.js" defer></script>
 </head> 
-<body onload="loadingPanel()"> 
+<body onload="loadingPanel(); loadingWorkspace();"> 
   <div class="flexbox"> 
     <div class="panel flexbox"> 
 
@@ -40,12 +40,6 @@
           <label class="inputIcon flexbox" >
             <input id="modeInput1" type="button" onclick="selectPanel(event)"> 
             <img src="assets/line.png" alt="line">
-          </label>
-          <label class="inputIcon flexbox" >
-            <input id="modeInput2" type="button" onclick="selectPanel(event)">
-          </label>
-          <label class="inputIcon flexbox" >
-            <input id="modeInput3" type="button" onclick="selectPanel(event)">
           </label>
         </div> 
       </div>
@@ -89,9 +83,9 @@
 
 
     <div class="workspace">
-      <canvas class="pixelwise">
+      <canvas id="canvas" class="pixelwise">
       </canvas>
-      <svg class="svg">
+      <svg id="svg" class="svg">
       </svg>
     </div>
   </div>
