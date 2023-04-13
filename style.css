@@ -110,9 +110,11 @@ body > div {
 .pixelwise {
   border: none;
   position: absolute;
+  z-index: 0;
 }
 
 .svg {
   border: none;
+  z-index: 1;
   /* background-color: aqua; */
 }
