@@ -91,7 +91,7 @@ body > div {
   align-items: center;
 }
 
-#deleteInput button {
+#deleteInput input {
   width: 80px;
 }
 
@@ -110,11 +110,17 @@ body > div {
 .pixelwise {
   border: none;
   position: absolute;
-  z-index: 0;
+  z-index: 1;
 }
 
 .svg {
   border: none;
-  z-index: 1;
+  z-index: 2;
   /* background-color: aqua; */
+}
+
+#canvas_tmp {
+  border: none;
+  position: absolute;
+  z-index: 0;
 }

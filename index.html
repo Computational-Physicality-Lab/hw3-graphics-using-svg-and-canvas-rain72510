@@ -81,16 +81,16 @@
       <div id="delete"> 
         <p class="panelTitle">Delete:</p> 
         <div id="deleteInput" class="flexbox"> 
-          <div> <button>Delete</button> </div>
-          <div> <button>Delete All</button> </div>
+          <div> <input id="delete" type="button" onclick="deleteObj(event)" value="Delete"> </div>
+          <div> <input id="deleteAll" type="button" onclick="deleteAllObj(event)" value="Delete All"> </div>
         </div> 
       </div> 
     </div>
 
 
     <div class="workspace">
-      <svg id="svg" class="svg"></svg>
       <canvas id="canvas" class="pixelwise"></canvas>
+      <svg id="svg" class="svg"></svg>
     </div>
   </div>
 </body>
