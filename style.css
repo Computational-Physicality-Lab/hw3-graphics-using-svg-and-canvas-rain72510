@@ -6,6 +6,7 @@
 body > div {
   align-items: stretch;
   height: 800px;
+  min-width: 1060px;
 }
 
 .panel {
@@ -48,14 +49,9 @@ body > div {
 }
 
 .inputIcon img {
-  /* border: 1px green solid; */
   height: 70%;
   width: auto;
 }
-
-/* .inputIcon svg {
-  border: 1px green solid;
-} */
 
 .inputIcon input {
   display: none;
@@ -100,27 +96,44 @@ body > div {
   border-width: 1px;
   border-color: black;
   border-left-style: none;
-}
-
-.workspace > * {
   width: 800px;
   height: 800px;
 }
 
-.pixelwise {
-  border: none;
+.workspace > * {
+  min-width: 800px;
+  min-height: 800px;
   position: absolute;
+}
+
+.pixelwise {
+
+  min-width: 800px;
+  min-height: 800px;
   z-index: 1;
 }
 
 .svg {
-  border: none;
+
+  min-width: 800px;
+  min-height: 800px;
   z-index: 2;
-  /* background-color: aqua; */
 }
 
 #canvas_tmp {
+
+  min-width: 800px;
+  min-height: 800px;
   border: none;
   position: absolute;
   z-index: 0;
+}
+
+.grayFilter {
+  background-color: #eee;
+  opacity: 0.4;
+  position: absolute;
+  z-index: 10;
+  min-width: 60px;
+  min-height: 50px;
 }

@@ -2,8 +2,8 @@
 const svg = document.querySelector("#svg");
 const pw = document.querySelector("#canvas");
 var pw_tmp = null;
-pw.setAttribute("height", "800px");
-pw.setAttribute("width", "800px");
+const pw_width = 800;
+const pw_height = 800;
 const ctx_pw = pw.getContext("2d");
 const init_layer = 1;
 const init_mode = 2;
@@ -78,6 +78,8 @@ const drawLine = (stroke_color, stroke_width, fill_color, x1, y1, x2, y2, opts) 
   switch (layer) {
     case 0:
       var ctx = opts["ctx"];
+      ctx.strokeStyle = colors[stroke_color];
+      ctx.lineWidth = stroke_width;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -174,24 +176,28 @@ const loadingPanel = () => {
   layer = 1;
   for (let v = 1; v < Object.keys(colors).length + 1; v++) {
     // console.log(v);
-    borderColorInputs.innerHTML += `\
-    <label class="inputIcon flexbox">\
-      <input id="borderColorInput${v}" type="button" onclick="selectPanel(event)">\
-      <svg viewbox="0, 0, 42, 28">\
-        ${drawRectangle(3, 1, v, 42, 28, 0, 0, {})}\
-      </svg>\
-    </label>\
+    borderColorInputs.innerHTML += `
+    <label class="inputIcon flexbox">
+      <div class="grayFilter">
+      </div>
+      <input id="borderColorInput${v}" type="button" onclick="selectPanel(event)">
+      <svg viewbox="0, 0, 42, 28">
+        ${drawRectangle(3, 1, v, 42, 28, 0, 0, {})}
+      </svg>
+    </label>
     `;
   }
   for (let v = 1; v < Object.keys(colors).length + 1; v++) {
     // console.log(v);
-    fillColorInputs.innerHTML += `\
-    <label class="inputIcon flexbox">\
-      <input id="fillColorInput${v}" type="button" onclick="selectPanel(event)">\
-      <svg viewbox="0, 0, 42, 28">\
-        ${drawRectangle(3, 1, v, 42, 28, 0, 0, {})}\
-      </svg>\
-    </label>\
+    fillColorInputs.innerHTML += `
+    <label class="inputIcon flexbox">
+      <div class="grayFilter">
+      </div>
+      <input id="fillColorInput${v}" type="button" onclick="selectPanel(event)">
+      <svg viewbox="0, 0, 42, 28">
+        ${drawRectangle(3, 1, v, 42, 28, 0, 0, {})}
+      </svg>
+    </label>
     `;
   }
   document.getElementById(`borderColorInput${border_color}`).parentElement.style.border="solid 1px #00f";
@@ -199,7 +205,9 @@ const loadingPanel = () => {
   document.getElementById(`modeInput${mode}`).parentElement.style.border="solid 1px #00f";
   var layersInput = document.getElementById("layersInput");
   layersInput.layer[init_layer].checked = true;
+  console.log("layer", layer);
   selectLayer();
+  // deleteDisable();
 }
 
 const renderModeInputIcon = () => { // also change border width
@@ -250,6 +258,8 @@ const changePanelIconBorder = () => {
 }
 
 const loadingWorkspace = () => {
+  pw.setAttribute("width", `${pw_width}px`);
+  pw.setAttribute("height", `${pw_height}px`);
   var workspace = document.querySelector(".workspace");
   workspace.addEventListener("mousedown", mousedown);
   workspace.addEventListener("mousemove", mousemove);
@@ -269,28 +279,65 @@ const printCurrentState = () => {
   console.log(`layer: ${layer}\nmode: ${mode},\nborder_color: ${border_color}\nborderWidth: ${border_width}fill_color: ${fill_color}`);
 }
 
-
-
-
 const selectLayer = () => { // 0: both, 1: svg, 2: pixelwise
   // console.log("layerSelect!");
   var layersInput = document.getElementById("layersInput")
   if (layersInput.layer[0].checked) {
     layer = 0;
-    svg.style.visibility = "hidden";
-    pw.style.visibility = "";
+    svg.style.display = "none";
+    pw.style.display = "";
   }
-  if (layersInput.layer[1].checked) {
+  else if (layersInput.layer[1].checked) {
     layer = 1;
-    svg.style.visibility = "";
-    pw.style.visibility = "hidden";
+    svg.style.display = "";
+    pw.style.display = "none";
   }
-  if (layersInput.layer[2].checked) {
+  else if (layersInput.layer[2].checked) {
     layer = 2;
-    svg.style.visibility = "";
-    pw.style.visibility = "";
+    svg.style.display = "";
+    pw.style.display = "";
   }
-  // printCurrentState();
+  chooseObj(null);
+  buttonDisable();
+  deleteDisable();
+  
+}
+
+const buttonDisable = () => {
+  if (layer === 2) {
+    for (var filter of document.querySelectorAll(".grayFilter")) {
+      filter.style.display = "";
+    }
+    for (var input of document.querySelectorAll("input")) {
+      if (input.getAttribute("name") === "layer") {
+        continue;
+      }
+      if (input.parentElement.getAttribute("id") === "deleteInput") {
+        continue;
+      }
+      input.setAttribute("disabled", true);
+    }
+  }
+  else {
+    for (var filter of document.querySelectorAll(".grayFilter")) {
+      filter.style.display = "none";
+    }
+    for (var input of document.querySelectorAll("input")) {
+      input.removeAttribute("disabled");
+    }
+  }
+}
+
+const deleteDisable = () => {
+  var deleteButton = document.getElementById("deleteOne");
+  console.log(deleteButton);
+  if ((layer !== 1) || (current_obj === null)) {
+    console.log("here");
+    deleteButton.setAttribute("disabled", true);
+  } else {
+    console.log("there");
+    deleteButton.removeAttribute("disabled");
+  }
 }
 
 const selectPanel = (e) => {
@@ -721,7 +768,8 @@ const chooseObj = (e) => {
     } catch {};
   } catch {};
   current_obj = null;
-  if (escaping) {
+  deleteDisable();
+  if ((escaping) || (e === null)) {
     return;
   }
   var tar = e.target;
@@ -736,6 +784,7 @@ const chooseObj = (e) => {
     fill_color = obj_info["fill_color"];
     renderModeInputIcon();
     changePanelIconBorder();
+    deleteDisable();
   }
 }
 
@@ -745,12 +794,14 @@ const deleteObj = (e) => {
     deleteFromObjDict(current_obj.getAttribute("id"));
     current_obj.remove();
     current_obj = null;
+    deleteDisable();
+    mousedowned = false; // We have hot key here.
   }
 }
 
 const deleteAllObj = (e) => {
-
   console.log("Delete All!!");
+  ctx_pw.clearRect(0, 0, pw_width, pw_height);
   for (var id of Object.keys(obj_dict)) {
     console.log(obj_dict[id]);
     if (obj_dict[id]["layer"] == 1) {
@@ -759,6 +810,8 @@ const deleteAllObj = (e) => {
     }
   }
   current_obj = null;
+  deleteDisable();
+  mousedowned = false;
 }
 
 const keyDown = (e) => {
@@ -818,15 +871,3 @@ const keyUp = (e) => {
       break;
   }
 }
-
-function draw_example() {
-  // layer = 1;
-  // var d = drawRectangle(3, 1, 1, 50, 50, 0, 0, {"say": "here"});
-  // svg.innerHTML += d;
-  // layer = 0;
-}
-
-// draw_example();
-
-
-// a();

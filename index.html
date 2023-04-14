@@ -16,43 +16,61 @@
         <p class="panelTitle">Layers:</p> 
         <div>
           <form id="layersInput" class="flexbox">
-          <!-- change text choosible -->
             <div>
-              <input type="radio" name="layer" onclick="selectLayer()"> <label>Show Canvas layer</label> 
+              <label>
+                <input type="radio" name="layer" onclick="selectLayer()">
+                Show Canvas layer
+              </label>
             </div> 
             <div>
-              <input type="radio" name="layer" onclick="selectLayer()"> <label>Show SVG layer</label> 
+              <label>
+                <input type="radio" name="layer" onclick="selectLayer()">
+                Show SVG layer
+              </label>
             </div> 
             <div>
-              <input type="radio" name="layer" onclick="selectLayer()"> <label>Show both layers</label>
+              <label>
+              <input type="radio" name="layer" onclick="selectLayer()">
+              Show both layers
+              </label>
             </div> 
           </form>
         </div>
       </div>
 
       <div id="mode"> 
-        <p class="panelTitle">Mode:</p> 
+        <p class="panelTitle">Mode:</p>
         <div id="modeInput" class="flexbox">
           <label class="inputIcon flexbox" >
+            <div class="grayFilter">
+            </div>
             <input id="modeInput0" type="button" onclick="selectPanel(event)">
             <img src="assets/cursor.png" alt="cursor">
           </label>
           <label class="inputIcon flexbox" >
+            <div class="grayFilter">
+            </div>
             <input id="modeInput1" type="button" onclick="selectPanel(event)"> 
             <img src="assets/line.png" alt="line">
           </label>
           <label class="inputIcon flexbox" >
+            <div class="grayFilter">
+            </div>
             <input id="modeInput2" type="button" onclick="selectPanel(event)">
           </label>
           <label class="inputIcon flexbox" >
+            <div class="grayFilter">
+            </div>
             <input id="modeInput3" type="button" onclick="selectPanel(event)">
           </label>
-        </div> 
+        </div>
       </div>
 
       <div id="borderColor"> 
         <p class="panelTitle">Border color:</p>
         <div id="borderColorInput" class="flexbox">
+          <div class="grayFilter">
+          </div>
           <label class="inputIcon flexbox" >
             <input id="borderColorInput0" type="button" onclick="selectPanel(event)">
             <p>None</p>
@@ -60,7 +78,7 @@
         </div>
       </div>
 
-      <div id="borderWidth"> 
+      <div id="borderWidth">
         <p class="panelTitle">Border width:</p> 
         <div id="borderWidthInput" class="flexbox"> 
           <input id="borderWidthInput0" type="range" min="1" max="30" value="3" oninput="selectWidth(event)"> 
@@ -68,10 +86,12 @@
         </div>
       </div>
 
-      <div id="fillColor"> 
+      <div id="fillColor">
         <p class="panelTitle">Fill color:</p>
         <div id="fillColorInput" class="flexbox">
           <label class="inputIcon flexbox" >
+            <div class="grayFilter">
+            </div>
             <input id="fillColorInput0" type="button" onclick="selectPanel(event)">
             <p>None</p>
           </label>
@@ -81,8 +101,8 @@
       <div id="delete"> 
         <p class="panelTitle">Delete:</p> 
         <div id="deleteInput" class="flexbox"> 
-          <div> <input id="delete" type="button" onclick="deleteObj(event)" value="Delete"> </div>
-          <div> <input id="deleteAll" type="button" onclick="deleteAllObj(event)" value="Delete All"> </div>
+          <input id="deleteOne" type="button" onclick="deleteObj(event)" value="Delete">
+          <input id="deleteAll" type="button" onclick="deleteAllObj(event)" value="Delete All">
         </div> 
       </div> 
     </div>
