@@ -1,10 +1,11 @@
+// import {floodFill} from "./floodfill.js"
 const svg = document.querySelector("#svg");
 const pw = document.querySelector("#canvas");
 var pw_tmp = null;
 pw.setAttribute("height", "800px");
 pw.setAttribute("width", "800px");
 const ctx_pw = pw.getContext("2d");
-const init_layer = 0;
+const init_layer = 1;
 const init_mode = 2;
 const init_border_color = 3;
 const init_border_width = 3;
@@ -20,8 +21,6 @@ var fill_color = init_fill_color; // 1:"#fff", 2: "#999", 3:"#000", 4:"#ff0", 5:
 var mousedowned = false;
 var mousedown_cursorX = 0;
 var mousedown_cursorY = 0;
-var mousemove_cursorX = 0;
-var mousemove_cursorY = 0;
 var mouseup_cursorX = 0;
 var mouseup_cursorY = 0;
 var obj_id_cnt = 0;
@@ -40,6 +39,10 @@ const createStyle = (stroke_color, stroke_width, fill_color) => {
 
 const distance2D = (x1, y1, x2, y2) => {
   return Math.sqrt(Math.pow(Math.abs(x1 - x2), 2) + Math.pow(Math.abs(y1 - y2), 2));
+}
+
+const deleteFromObjDict = (id) => {
+  delete obj_dict[id];
 }
 
 const cloneCanvas = (oldCanvas) => {
@@ -411,7 +414,14 @@ const mousedown = (e) => {
   console.log("mousedown, ", e.clientX, e.clientY);
   mousedowned = true;
   if (mode == 0) {
-    chooseObj(e);
+    switch (layer) {
+      case 0:
+        floodFill(e, pw, colors[fill_color]);
+        break;
+      case 1:
+        chooseObj(e);
+        break;
+    }
   }
 }
 
@@ -543,18 +553,6 @@ const shiftParam = (param) => {
 }
 
 const drawInWorkspace = (tmp) => {
-  if (!mousedowned) {
-    return;
-  }
-  var id = `obj_id${obj_id_cnt}`;
-  if (escaping) {
-    try {
-      document.getElementById(id).remove();
-    } catch {};
-    mousedowned = false;
-    return;
-  }
-
   const draw = () => {
     switch (layer) {
       case 0:
@@ -577,6 +575,30 @@ const drawInWorkspace = (tmp) => {
     }
   }
 
+  if (!mousedowned) {
+    return;
+  }
+  var id = `obj_id${obj_id_cnt}`;
+  if (escaping) {
+    try {
+      document.getElementById(id).remove();
+    } catch {};
+    mousedowned = false;
+    return;
+  }
+
+
+  try {
+    switch (layer) {
+      case 0:
+        document.getElementById("canvas_tmp").remove();
+        break;
+      case 1:
+        document.getElementById(id).remove();
+        deleteFromObjDict(id);
+        break;
+    }
+  } catch {};
   switch (mode) {
     case 1:
       if (border_color === 0) {
@@ -597,30 +619,21 @@ const drawInWorkspace = (tmp) => {
         x2 = shifted["x2"];
         y2 = shifted["y2"];
       }
-      obj_dict[id] = {
-        "mode": mode,
-        "border_color": border_color,
-        "border_width": border_width,
-        "fill_color": fill_color,
-        "param": {
-          "x1": x1 - panelWidth - bodyMargin,
-          "y1": y1 - bodyMargin,
-          "x2": x2 - panelWidth - bodyMargin,
-          "y2": y2 - bodyMargin,
-        },
-        "opts": {"id": id, "filter":false},
-      }
-      try {
-        switch (layer) {
-          case 0:
-            document.getElementById("canvas_tmp").remove();
-            break;
-          case 1:
-            document.getElementById(id).remove();
-            break;
-        }
-      } catch {};
       if (distance2D(x1, y1, x2, y2) >= 10) {
+        obj_dict[id] = {
+          "layer": layer,
+          "mode": mode,
+          "border_color": border_color,
+          "border_width": border_width,
+          "fill_color": fill_color,
+          "param": {
+            "x1": x1 - panelWidth - bodyMargin,
+            "y1": y1 - bodyMargin,
+            "x2": x2 - panelWidth - bodyMargin,
+            "y2": y2 - bodyMargin,
+          },
+          "opts": {"id": id, "filter":false},
+        }
         draw();
       }
       break;
@@ -640,31 +653,21 @@ const drawInWorkspace = (tmp) => {
         left = shifted["left"];
         top = shifted["top"];
       }
-      obj_dict[id] = {
-        "layer": layer,
-        "mode": mode,
-        "border_color": border_color,
-        "border_width": border_width,
-        "fill_color": fill_color,
-        "param": {
-          "width": width,
-          "height": height,
-          "x": left - panelWidth - bodyMargin,
-          "y": top - bodyMargin,
-        },
-        "opts": {"id": id, "filter":false,},
-      }
-      try {
-        switch (layer) {
-          case 0:
-            document.getElementById("canvas_tmp").remove();
-            break;
-          case 1:
-            document.getElementById(id).remove();
-            break;
-        }
-      } catch {};
       if ((width >= 10) && (height >= 10)) {
+        obj_dict[id] = {
+          "layer": layer,
+          "mode": mode,
+          "border_color": border_color,
+          "border_width": border_width,
+          "fill_color": fill_color,
+          "param": {
+            "width": width,
+            "height": height,
+            "x": left - panelWidth - bodyMargin,
+            "y": top - bodyMargin,
+          },
+          "opts": {"id": id, "filter":false,},
+        }
         draw();
       }
       break;
@@ -688,210 +691,25 @@ const drawInWorkspace = (tmp) => {
         cx = shifted["cx"];
         cy = shifted["cy"];
       }
-      obj_dict[id] = {
-        "mode": mode,
-        "border_color": border_color,
-        "border_width": border_width,
-        "fill_color": fill_color,
-        "param": {
-          "rx": rx,
-          "ry": ry,
-          "cx": cx - panelWidth - bodyMargin,
-          "cy": cy - bodyMargin,
-        },
-        "opts": {"id": id, "filter":false,},
-      }
-      try {
-        switch (layer) {
-          case 0:
-            document.getElementById("canvas_tmp").remove();
-            break;
-          case 1:
-            document.getElementById(id).remove();
-            break;
-        }
-      } catch {};
       if ((width >= 10) && (height >= 10)) {
+        obj_dict[id] = {
+          "layer": layer,
+          "mode": mode,
+          "border_color": border_color,
+          "border_width": border_width,
+          "fill_color": fill_color,
+          "param": {
+            "rx": rx,
+            "ry": ry,
+            "cx": cx - panelWidth - bodyMargin,
+            "cy": cy - bodyMargin,
+          },
+          "opts": {"id": id, "filter":false,},
+        }
         draw();
       }
       break;
   }
-
-
-
-  // switch (layer) {
-  //   case 0: // canvas
-  //     switch (mode) {
-  //       case 2:
-  //         var height = Math.abs(mouseup_cursorY - mousedown_cursorY);
-  //         var width = Math.abs(mouseup_cursorX - mousedown_cursorX);
-  //         var left = Math.min(mousedown_cursorX, mouseup_cursorX);
-  //         var top = Math.min(mousedown_cursorY, mouseup_cursorY);
-  //         if (shifting){
-  //           var shifted = shiftParam({
-  //             "height": height,
-  //             "width": width,
-  //             "left": left,
-  //             "top": top,});
-  //           height = shifted["height"];
-  //           width = shifted["width"];
-  //           left = shifted["left"];
-  //           top = shifted["top"];
-  //         }
-  //         obj_dict[id] = {
-  //           "layer": layer,
-  //           "mode": mode,
-  //           "border_color": border_color,
-  //           "border_width": border_width,
-  //           "fill_color": fill_color,
-  //           "param": {
-  //             "width": width,
-  //             "height": height,
-  //             "x": left - panelWidth - bodyMargin,
-  //             "y": top - bodyMargin,
-  //           },
-  //           "opts": {"id": id, "filter":false, "ctx":ctx_pw},
-  //         }
-  //         try {
-  //           document.getElementById("canvas_tmp").remove();
-  //         } catch {};
-  //         if ((width >= 10) && (height >= 10)) {
-  //           if (tmp) {
-  //             obj_dict[id]["opts"]["ctx"] = canvasTmp();
-  //             drawFromInfo(obj_dict[id]);
-  //           } else {
-  //             drawFromInfo(obj_dict[id]);
-  //             switchCanvas(false);
-  //             obj_id_cnt += 1;
-  //           }
-  //         }
-  //         break;
-  //     }
-  //     break;
-  //   case 1: // SVG
-  //     try {
-  //       document.getElementById(id).remove();
-  //     } catch {};
-  //     switch (mode) {
-  //       case 1:
-  //         if (border_color === 0) {
-  //           break;
-  //         }
-  //         var x1 = mousedown_cursorX;
-  //         var y1 = mousedown_cursorY;
-  //         var x2 = mouseup_cursorX;
-  //         var y2 = mouseup_cursorY;
-          
-  //         if (shifting && x2 - x1 != 0) {
-  //           var shifted = shiftParam({
-  //             "x1": x1,
-  //             "y1": y1,
-  //             "x2": x2,
-  //             "y2": y2,
-  //           })
-  //           x2 = shifted["x2"];
-  //           y2 = shifted["y2"];
-  //         }
-  //         obj_dict[id] = {
-  //           "mode": mode,
-  //           "border_color": border_color,
-  //           "border_width": border_width,
-  //           "fill_color": fill_color,
-  //           "param": {
-  //             "x1": x1 - panelWidth - bodyMargin,
-  //             "y1": y1 - bodyMargin,
-  //             "x2": x2 - panelWidth - bodyMargin,
-  //             "y2": y2 - bodyMargin,
-  //           },
-  //           "opts": {"id": id, "filter":false},
-  //         }
-          
-  //         if (distance2D(x1, y1, x2, y2) >= 10) {
-  //           svg.innerHTML += drawFromInfo(obj_dict[id]);
-  //           if (!tmp) {
-  //             obj_id_cnt += 1;
-  //           }
-  //         }
-  //         break;
-  //       case 2:
-  //         var height = Math.abs(mouseup_cursorY - mousedown_cursorY);
-  //         var width = Math.abs(mouseup_cursorX - mousedown_cursorX);
-  //         var left = Math.min(mousedown_cursorX, mouseup_cursorX);
-  //         var top = Math.min(mousedown_cursorY, mouseup_cursorY);
-  //         if (shifting) {
-  //           var shifted = shiftParam({
-  //             "height": height,
-  //             "width": width,
-  //             "left": left,
-  //             "top": top,});
-  //           height = shifted["height"];
-  //           width = shifted["width"];
-  //           left = shifted["left"];
-  //           top = shifted["top"];
-  //         }
-  //         obj_dict[id] = {
-  //           "mode": mode,
-  //           "border_color": border_color,
-  //           "border_width": border_width,
-  //           "fill_color": fill_color,
-  //           "param": {
-  //             "width": width,
-  //             "height": height,
-  //             "x": left - panelWidth - bodyMargin,
-  //             "y": top - bodyMargin,
-  //           },
-  //           "opts": {"id": id, "filter":false},
-  //         }
-  //         if ((width >= 10) && (height >= 10)) {
-  //           svg.innerHTML += drawFromInfo(obj_dict[id]);
-  //           if (!tmp) {
-  //             obj_id_cnt += 1;
-  //           }
-  //         }
-  //         break;
-  //       case 3:
-  //         var rx = Math.abs(mouseup_cursorX - mousedown_cursorX) / 2;
-  //         var ry = Math.abs(mouseup_cursorY - mousedown_cursorY) / 2;
-  //         var cx = (mouseup_cursorX + mousedown_cursorX) / 2;
-  //         var cy = (mouseup_cursorY + mousedown_cursorY) / 2;
-  //         var height = Math.abs(mouseup_cursorY - mousedown_cursorY);
-  //         var width = Math.abs(mouseup_cursorX - mousedown_cursorX);
-          
-  //         if (shifting) {
-  //           var shifted = shiftParam({
-  //             "rx": rx,
-  //             "ry": ry,
-  //             "cx": cx,
-  //             "cy": cy,
-  //           })
-  //           rx = shifted["rx"];
-  //           ry = shifted["ry"];
-  //           cx = shifted["cx"];
-  //           cy = shifted["cy"];
-  //         }
-  //         obj_dict[id] = {
-  //           "mode": mode,
-  //           "border_color": border_color,
-  //           "border_width": border_width,
-  //           "fill_color": fill_color,
-  //           "param": {
-  //             "rx": rx,
-  //             "ry": ry,
-  //             "cx": cx - panelWidth - bodyMargin,
-  //             "cy": cy - bodyMargin,
-  //           },
-  //           "opts": {"id": id, "filter":false,},
-  //         }
-  //         if ((width >= 10) && (height >= 10)) {
-  //           svg.innerHTML += drawFromInfo(obj_dict[id]);
-  //           if (!tmp) {
-  //             obj_id_cnt += 1;
-  //           }
-  //         }
-  //         break;
-  //     }
-  //     break;
-  // }
 }
 
 const chooseObj = (e) => {
@@ -924,21 +742,27 @@ const chooseObj = (e) => {
 const deleteObj = (e) => {
   console.log("Delete !!");
   if (current_obj !== null) {
+    deleteFromObjDict(current_obj.getAttribute("id"));
     current_obj.remove();
     current_obj = null;
-    console.log(current_obj);
   }
 }
 
 const deleteAllObj = (e) => {
 
   console.log("Delete All!!");
-  // for
-  // document.getElementById()
+  for (var id of Object.keys(obj_dict)) {
+    console.log(obj_dict[id]);
+    if (obj_dict[id]["layer"] == 1) {
+      deleteFromObjDict(id);
+      document.getElementById(id).remove();
+    }
+  }
+  current_obj = null;
 }
 
 const keyDown = (e) => {
-  console.log(e);
+  // console.log(e);
   switch (e.keyCode) {
     case 16: // shift
       shifting = true;
@@ -971,11 +795,13 @@ const keyDown = (e) => {
     case 46: // delete
       deleteObj(null);
       break;
+    case 81:
+      console.log(obj_dict);
   }
 }
 
 const keyUp = (e) => {
-  console.log(e);
+  // console.log(e);
   switch (e.keyCode) {
     case 16:
       shifting = false;
