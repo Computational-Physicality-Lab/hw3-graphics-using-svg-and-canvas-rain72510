@@ -175,7 +175,6 @@ const loadingPanel = () => {
   renderModeInputIcon();
   layer = 1;
   for (let v = 1; v < Object.keys(colors).length + 1; v++) {
-    // console.log(v);
     borderColorInputs.innerHTML += `
     <label class="inputIcon flexbox">
       <div class="grayFilter">
@@ -188,7 +187,6 @@ const loadingPanel = () => {
     `;
   }
   for (let v = 1; v < Object.keys(colors).length + 1; v++) {
-    // console.log(v);
     fillColorInputs.innerHTML += `
     <label class="inputIcon flexbox">
       <div class="grayFilter">
@@ -205,14 +203,12 @@ const loadingPanel = () => {
   document.getElementById(`modeInput${mode}`).parentElement.style.border="solid 1px #00f";
   var layersInput = document.getElementById("layersInput");
   layersInput.layer[init_layer].checked = true;
-  console.log("layer", layer);
   selectLayer();
   // deleteDisable();
 }
 
 const renderModeInputIcon = () => { // also change border width
   var modeInputs = document.getElementById("modeInput").parentElement.getElementsByTagName("label");
-  // console.log(modeInputs);
   try {
     var icon = document.getElementById("modeInput2Icon");
     icon.remove();
@@ -330,23 +326,21 @@ const buttonDisable = () => {
 
 const deleteDisable = () => {
   var deleteButton = document.getElementById("deleteOne");
-  console.log(deleteButton);
   if ((layer !== 1) || (current_obj === null)) {
-    console.log("here");
     deleteButton.setAttribute("disabled", true);
   } else {
-    console.log("there");
     deleteButton.removeAttribute("disabled");
   }
 }
 
 const selectPanel = (e) => {
-  console.log("selectPanel !!")
+  // console.log("selectPanel !!")
   var id = e.target.getAttribute("id");
   var chosenNum = parseInt(id.slice(-1))
   switch (id.slice(0, -1)) {
     case "modeInput":
       mode = chosenNum;
+      chooseObj(null);
       break;
     case "borderColorInput":
       if ((fill_color == 0) && (chosenNum == 0)) {
@@ -364,7 +358,7 @@ const selectPanel = (e) => {
   modifyObj();
   renderModeInputIcon();
   changePanelIconBorder();
-  printCurrentState();
+  // printCurrentState();
 }
 
 const selectWidth = (e) => {
@@ -416,7 +410,7 @@ const moveObj = (tmp) => {
     chooseObj(null);
     return;
   }
-  console.log("Moving obj !!");
+  // console.log("Moving obj !!");
   switch (obj_info["mode"]) {
     case 1:
       if (tmp) {
@@ -458,7 +452,7 @@ const moveObj = (tmp) => {
 const mousedown = (e) => {
   mousedown_cursorX = e.clientX;
   mousedown_cursorY = e.clientY;
-  console.log("mousedown, ", e.clientX, e.clientY);
+  // console.log("mousedown, ", e.clientX, e.clientY);
   mousedowned = true;
   if (mode == 0) {
     switch (layer) {
@@ -494,7 +488,7 @@ const mousemove = (e) => {
 const mouseup = (e) => {
   mouseup_cursorX = e.clientX;
   mouseup_cursorY = e.clientY;
-  console.log("mouseup, ", e.clientX, e.clientY);
+  // console.log("mouseup, ", e.clientX, e.clientY);
   if (mousedowned) {
     switch (mode) {
       case 0:
@@ -773,7 +767,7 @@ const chooseObj = (e) => {
     return;
   }
   var tar = e.target;
-  console.log("chooseObj !", tar);
+  // console.log("chooseObj !", tar);
   if (tar.getAttribute("id").slice(0, 6) == "obj_id") {
     current_obj = tar;
     var obj_info = obj_dict[`${current_obj.getAttribute("id")}`];
@@ -789,7 +783,7 @@ const chooseObj = (e) => {
 }
 
 const deleteObj = (e) => {
-  console.log("Delete !!");
+  // console.log("Delete !!");
   if (current_obj !== null) {
     deleteFromObjDict(current_obj.getAttribute("id"));
     current_obj.remove();
@@ -800,10 +794,9 @@ const deleteObj = (e) => {
 }
 
 const deleteAllObj = (e) => {
-  console.log("Delete All!!");
+  // console.log("Delete All!!");
   ctx_pw.clearRect(0, 0, pw_width, pw_height);
   for (var id of Object.keys(obj_dict)) {
-    console.log(obj_dict[id]);
     if (obj_dict[id]["layer"] == 1) {
       deleteFromObjDict(id);
       document.getElementById(id).remove();
