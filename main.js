@@ -538,8 +538,8 @@ const moveObj = (tmp) => {
 }
 
 const mousedown = (e) => {
-  mousedown_cursorX = e.clientX;
-  mousedown_cursorY = e.clientY;
+  mousedown_cursorX = e.clientX + window.scrollX;
+  mousedown_cursorY = e.clientY + window.scrollY;
   // console.log("mousedown, ", e.clientX - panelWidth - bodyMargin, e.clientY - bodyMargin);
   mousedowned = true;
   if (mode == 0) {
@@ -555,8 +555,8 @@ const mousedown = (e) => {
 }
 
 const mousemove = (e) => {
-  mouseup_cursorX = e.clientX;
-  mouseup_cursorY = e.clientY;
+  mouseup_cursorX = e.clientX + window.scrollX;
+  mouseup_cursorY = e.clientY + window.scrollY;
   if (mousedowned) {
     switch (mode) {
       case 0:
@@ -577,8 +577,8 @@ const mousemove = (e) => {
 }
 
 const mouseup = (e) => {
-  mouseup_cursorX = e.clientX;
-  mouseup_cursorY = e.clientY;
+  mouseup_cursorX = e.clientX + window.scrollX;
+  mouseup_cursorY = e.clientY + window.scrollY;
   // console.log("mouseup, ", e.clientX - panelWidth - bodyMargin, e.clientY - bodyMargin);
   if (mousedowned) {
     switch (mode) {
