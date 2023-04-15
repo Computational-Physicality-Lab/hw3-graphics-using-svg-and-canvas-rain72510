@@ -1,3 +1,9 @@
+:root {
+  --panel-width: 260px;
+  --workspace-width: 800px;
+  --panel-height: 850px;
+}
+
 .flexbox {
   display: flex;
   flex-direction: row;
@@ -5,8 +11,8 @@
 
 body > div {
   align-items: stretch;
-  height: 800px;
-  min-width: 1060px;
+  min-height: var(--panel-height);
+  min-width: calc(var(--panel-width) + var(--workspace-width));
 }
 
 .panel {
@@ -15,8 +21,9 @@ body > div {
   border-color: black;
   flex-direction: column;
   align-items: stretch;
-  min-width: 260px;
-  max-width: 260px;
+  min-width: var(--panel-width);
+  max-width: var(--panel-width);
+  min-height: var(--panel-height);
 }
 
 .panel > div {
@@ -62,6 +69,10 @@ body > div {
   font-family: 'Courier New', Courier, monospace;
 }
 
+#modeInput {
+  flex-wrap: wrap;
+}
+
 #borderColorInput {
   flex-wrap: wrap;
 }
@@ -96,34 +107,25 @@ body > div {
   border-width: 1px;
   border-color: black;
   border-left-style: none;
-  width: 800px;
-  height: 800px;
+  width: var(--workspace-width);
+  height: var(--panel-height);
 }
 
 .workspace > * {
-  min-width: 800px;
-  min-height: 800px;
+  min-width: var(--workspace-width);
+  min-height: var(--panel-height);
   position: absolute;
 }
 
 .pixelwise {
-
-  min-width: 800px;
-  min-height: 800px;
   z-index: 1;
 }
 
 .svg {
-
-  min-width: 800px;
-  min-height: 800px;
   z-index: 2;
 }
 
 #canvas_tmp {
-
-  min-width: 800px;
-  min-height: 800px;
   border: none;
   position: absolute;
   z-index: 0;

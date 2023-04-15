@@ -3,7 +3,7 @@ const svg = document.querySelector("#svg");
 const pw = document.querySelector("#canvas");
 var pw_tmp = null;
 const pw_width = 800;
-const pw_height = 800;
+const pw_height = 850;
 const ctx_pw = pw.getContext("2d");
 const init_layer = 1;
 const init_mode = 2;
@@ -27,6 +27,8 @@ var obj_id_cnt = 0;
 var current_obj = null;
 var escaping = false;
 var shifting = false;
+var polylineDetecParam = {"polylining": false, "toPop": false};
+var polylinePoints = [];
 
 
 const colors = {1:"#fff", 2: "#999", 3:"#000", 4:"#ff0", 5:"#f00", 6:"#0ff", 7:"#0f0"};
@@ -158,6 +160,35 @@ const drawEllipse = (stroke_color, stroke_width, fill_color, rx, ry, cx, cy, opt
   }
 }
 
+const drawPolyLine = (stroke_color, stroke_width, fill_color, points, opts) => {
+  switch (layer) {
+    case 0:
+      var ctx = opts["ctx"];
+      ctx.strokeStyle = colors[stroke_color];
+      ctx.lineWidth = stroke_width;
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (var t = 1; t < points.length; t++) {
+        ctx.lineTo(points[t][0], points[t][1]);
+      }
+      ctx.stroke();
+    case 1:
+      pointsString = "";
+      for (var p of points) {
+        pointsString += `${p[0]},${p[1]} `;
+      }
+      return `
+      <polyline`
+      + (opts["id"]?` id="${opts["id"]}"`:"") +
+      `
+      points="${pointsString}"
+      style="${createStyle(stroke_color, stroke_width, 0)}"
+      shape-rendering="crispEdges"`
+      + (opts["filter"]?"filter=url(#selectFilter)":"") +
+      `/>`;
+  }
+}
+
 const drawFromInfo = (info) => {
   switch (info["mode"]) {
     case 1:
@@ -166,6 +197,8 @@ const drawFromInfo = (info) => {
       return drawRectangle(info["border_color"], info["border_width"], info["fill_color"], info["param"]["width"], info["param"]["height"], info["param"]["x"], info["param"]["y"], info["opts"]);
     case 3:
       return drawEllipse(info["border_color"], info["border_width"], info["fill_color"], info["param"]["rx"], info["param"]["ry"], info["param"]["cx"], info["param"]["cy"], info["opts"]);
+    case 4:
+      return drawPolyLine(info["border_color"], info["border_width"], info["fill_color"], info["param"]["points"], info["opts"]);
   }
 }
 
@@ -370,8 +403,12 @@ const selectWidth = (e) => {
 
 const modifyObj = () => {
   try {
-    current_obj.setAttribute("style", createStyle(border_color, border_width, fill_color));
     var obj_info = obj_dict[`${current_obj.getAttribute("id")}`];
+    if (obj_info["mode"] === 4) {
+      current_obj.setAttribute("style", createStyle(border_color, border_width, 0));
+    } else {
+      current_obj.setAttribute("style", createStyle(border_color, border_width, fill_color));
+    }
     obj_info["border_color"] = border_color;
     obj_info["border_width"] = border_width;
     obj_info["fill_color"] = fill_color;
@@ -405,45 +442,73 @@ const moveObj = (tmp) => {
           current_obj.setAttribute("cy", obj_info["param"]["cy"]);
         } catch {};
         break;
+      case 4:
+        try {
+          pointsString = "";
+          for (var p of obj_info["param"]["points"]) {
+            pointsString += `${p[0]},${p[1]} `;
+          }
+          current_obj.setAttribute("points", pointsString);
+      
+
+        } catch {};
+        break;
     }
     mousedowned = false;
     chooseObj(null);
     return;
   }
   // console.log("Moving obj !!");
+  var dx = mouseup_cursorX - mousedown_cursorX;
+  var dy = mouseup_cursorY - mousedown_cursorY;
   switch (obj_info["mode"]) {
     case 1:
       if (tmp) {
-        current_obj.setAttribute("x1", obj_info["param"]["x1"] + mouseup_cursorX - mousedown_cursorX);
-        current_obj.setAttribute("y1", obj_info["param"]["y1"] + mouseup_cursorY - mousedown_cursorY);
-        current_obj.setAttribute("x2", obj_info["param"]["x2"] + mouseup_cursorX - mousedown_cursorX);
-        current_obj.setAttribute("y2", obj_info["param"]["y2"] + mouseup_cursorY - mousedown_cursorY);
+        current_obj.setAttribute("x1", obj_info["param"]["x1"] + dx);
+        current_obj.setAttribute("y1", obj_info["param"]["y1"] + dy);
+        current_obj.setAttribute("x2", obj_info["param"]["x2"] + dx);
+        current_obj.setAttribute("y2", obj_info["param"]["y2"] + dy);
       }
       else {
-        obj_info["param"]["x1"] = obj_info["param"]["x1"] + mouseup_cursorX - mousedown_cursorX;
-        obj_info["param"]["y1"] = obj_info["param"]["y1"] + mouseup_cursorY - mousedown_cursorY;
-        obj_info["param"]["x2"] = obj_info["param"]["x2"] + mouseup_cursorX - mousedown_cursorX;
-        obj_info["param"]["y2"] = obj_info["param"]["y2"] + mouseup_cursorY - mousedown_cursorY;
+        obj_info["param"]["x1"] = obj_info["param"]["x1"] + dx;
+        obj_info["param"]["y1"] = obj_info["param"]["y1"] + dy;
+        obj_info["param"]["x2"] = obj_info["param"]["x2"] + dx;
+        obj_info["param"]["y2"] = obj_info["param"]["y2"] + dy;
       }
       break;
     case 2:
       if (tmp) {
-        current_obj.setAttribute("x", obj_info["param"]["x"] + mouseup_cursorX - mousedown_cursorX);
-        current_obj.setAttribute("y", obj_info["param"]["y"] + mouseup_cursorY - mousedown_cursorY);
+        current_obj.setAttribute("x", obj_info["param"]["x"] + dx);
+        current_obj.setAttribute("y", obj_info["param"]["y"] + dy);
       }
       else {
-        obj_info["param"]["x"] = obj_info["param"]["x"] + mouseup_cursorX - mousedown_cursorX;
-        obj_info["param"]["y"] = obj_info["param"]["y"] + mouseup_cursorY - mousedown_cursorY;
+        obj_info["param"]["x"] = obj_info["param"]["x"] + dx;
+        obj_info["param"]["y"] = obj_info["param"]["y"] + dy;
       }
       break;
     case 3:
       if (tmp) {
-        current_obj.setAttribute("cx", obj_info["param"]["cx"] + mouseup_cursorX - mousedown_cursorX);
-        current_obj.setAttribute("cy", obj_info["param"]["cy"] + mouseup_cursorY - mousedown_cursorY);
+        current_obj.setAttribute("cx", obj_info["param"]["cx"] + dx);
+        current_obj.setAttribute("cy", obj_info["param"]["cy"] + dy);
       }
       else {
-        obj_info["param"]["cx"] = obj_info["param"]["cx"] + mouseup_cursorX - mousedown_cursorX;
-        obj_info["param"]["cy"] = obj_info["param"]["cy"] + mouseup_cursorY - mousedown_cursorY;
+        obj_info["param"]["cx"] = obj_info["param"]["cx"] + dx;
+        obj_info["param"]["cy"] = obj_info["param"]["cy"] + dy;
+      }
+      break;
+    case 4:
+      if (tmp) {
+        pointsString = "";
+        for (var p of obj_info["param"]["points"]) {
+          pointsString += `${p[0] + dx},${p[1] + dy} `;
+        }
+        current_obj.setAttribute("points", pointsString);
+      }
+      else {
+        for (var t=0; t < obj_info["param"]["points"].length; t++) {
+          obj_info["param"]["points"][t][0] += dx; 
+          obj_info["param"]["points"][t][1] += dy;
+        }
       }
       break;
   }
@@ -452,7 +517,7 @@ const moveObj = (tmp) => {
 const mousedown = (e) => {
   mousedown_cursorX = e.clientX;
   mousedown_cursorY = e.clientY;
-  // console.log("mousedown, ", e.clientX, e.clientY);
+  // console.log("mousedown, ", e.clientX - panelWidth - bodyMargin, e.clientY - bodyMargin);
   mousedowned = true;
   if (mode == 0) {
     switch (layer) {
@@ -483,12 +548,15 @@ const mousemove = (e) => {
         break;
     }
   }
+  if ((mode == 4) && polylineDetecParam["polylining"]) {
+    drawInWorkspace(true);
+  }
 }
 
 const mouseup = (e) => {
   mouseup_cursorX = e.clientX;
   mouseup_cursorY = e.clientY;
-  // console.log("mouseup, ", e.clientX, e.clientY);
+  // console.log("mouseup, ", e.clientX - panelWidth - bodyMargin, e.clientY - bodyMargin);
   if (mousedowned) {
     switch (mode) {
       case 0:
@@ -501,6 +569,11 @@ const mouseup = (e) => {
       case 3:
         drawInWorkspace(false);
         break;
+      case 4:
+        polylineDetecParam["polylining"] = true;
+        polylineDetecParam["toPop"] = false;
+        drawInWorkspace(true);
+        break;
     }
     mousedowned = false;
   }
@@ -512,6 +585,7 @@ const shiftParam = (param) => {
   }
   switch (mode) {
     case 1:
+    case 4:
       var dx = param["x2"] - param["x1"];
       var dy = param["y2"] - param["y1"];
       var theta = dy / dx;
@@ -616,30 +690,27 @@ const drawInWorkspace = (tmp) => {
     }
   }
 
-  if (!mousedowned) {
+  if (!mousedowned && !polylineDetecParam["polylining"]) {
     return;
   }
   var id = `obj_id${obj_id_cnt}`;
-  if (escaping) {
-    try {
-      document.getElementById(id).remove();
-    } catch {};
-    mousedowned = false;
-    return;
-  }
-
-
   try {
     switch (layer) {
       case 0:
         document.getElementById("canvas_tmp").remove();
+        switchCanvas(false);
         break;
       case 1:
         document.getElementById(id).remove();
         deleteFromObjDict(id);
         break;
-    }
+      }
   } catch {};
+  if (escaping) {
+    mousedowned = false;
+    return;
+  }
+
   switch (mode) {
     case 1:
       if (border_color === 0) {
@@ -750,6 +821,63 @@ const drawInWorkspace = (tmp) => {
         draw();
       }
       break;
+    case 4:
+      var x = mouseup_cursorX - panelWidth - bodyMargin;
+      var y = mouseup_cursorY - bodyMargin;
+      if (tmp) {
+        if (polylinePoints.length >= 1){
+          if (shifting && x - x1 != 0) {
+            var x1 = polylineDetecParam["toPop"]?
+              polylinePoints[polylinePoints.length - 2][0]:
+              polylinePoints[polylinePoints.length - 1][0];
+            var y1 = polylineDetecParam["toPop"]?
+              polylinePoints[polylinePoints.length - 2][1]:
+              polylinePoints[polylinePoints.length - 1][1];
+            var shifted = shiftParam({
+              "x1": x1,
+              "y1": y1,
+              "x2": x,
+              "y2": y,
+            })
+            x = shifted["x2"];
+            y = shifted["y2"];
+          }
+          var dist = polylineDetecParam["toPop"]? 
+            distance2D(x, y, polylinePoints[polylinePoints.length - 2][0], polylinePoints[polylinePoints.length - 2][1]):
+            distance2D(x, y, polylinePoints[polylinePoints.length - 1][0], polylinePoints[polylinePoints.length - 1][1])
+          // console.log("dist!!", dist);
+          if (dist >= 10) {
+            if (polylineDetecParam["toPop"]){
+              polylinePoints.pop();
+            }
+            polylinePoints.push([x, y]);
+            polylineDetecParam["toPop"] = true;
+          }
+        } else {
+          polylinePoints.push([x, y]);
+        }
+      }
+      
+      if (!tmp) {
+        // console.log(polylinePoints);
+      }
+      
+      obj_dict[id] = {
+        "layer": layer,
+        "mode": mode,
+        "border_color": border_color,
+        "border_width": border_width,
+        "fill_color": fill_color,
+        "param": {
+          "points": polylinePoints,
+        },
+        "opts": {"id": id, "filter":false,},
+      }
+      if (polylinePoints.length > 1){
+        draw();
+      }
+      
+      break;
   }
 }
 
@@ -827,22 +955,65 @@ const keyDown = (e) => {
       escaping = true;
       switch(mode) {
         case 0:
-          moveObj(true);
+          if (current_obj !== null) {
+            moveObj(false);
+          }
           break;
         case 1:
         case 2:
         case 3:
           drawInWorkspace(true);
           break;
+        case 4:
+          drawInWorkspace(true);
+          polylinePoints = [];
+          polylineDetecParam["polylining"] = false;
+          polylineDetecParam["toPop"] = false;
+          break;
       }
       escaping = false;
       shifting = false;
+      break;
+    case 32: // space
+      if (polylineDetecParam["toPop"]) {
+        polylinePoints.pop();
+        polylineDetecParam["toPop"] = false;
+      }
+      polylinePoints.pop();
+      if (polylinePoints.length <= 0) {
+        polylineDetecParam["polylining"] = false;
+        try {
+          var id = `obj_id${obj_id_cnt}`;
+          switch (layer) {
+            case 0:
+              document.getElementById("canvas_tmp").remove();
+              switchCanvas(false);
+              break;
+            case 1:
+              document.getElementById(id).remove();
+              deleteFromObjDict(id);
+              break;
+          }
+        } catch {};
+      } else {
+        drawInWorkspace(true);
+      }
       break;
     case 46: // delete
       deleteObj(null);
       break;
     case 81:
-      console.log(obj_dict);
+      // console.log("q!!", obj_dict);
+      if (mode == 4) {
+        if (polylineDetecParam["toPop"]){
+          polylinePoints.pop();
+        }
+        drawInWorkspace(false);
+        polylinePoints = [];
+        polylineDetecParam["polylining"] = false;
+        polylineDetecParam["toPop"] = false;
+      }
+      break;
   }
 }
 
@@ -864,3 +1035,18 @@ const keyUp = (e) => {
       break;
   }
 }
+
+function draw_example () {
+  var border_width = 1;
+  polylinePoints = [[0, 0], [20, 30], [70, 90], [510, 320],];
+  polylinePoints.push([15, 89]);
+  console.log(polylinePoints[polylinePoints.length - 1])
+  console.log(polylinePoints);
+  var d = drawPolyLine(border_color, border_width, fill_color, polylinePoints, {});
+  console.log(d);
+  svg.innerHTML += d;
+}
+
+// draw_example ();
+
+
