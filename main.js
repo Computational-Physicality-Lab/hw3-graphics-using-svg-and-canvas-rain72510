@@ -997,7 +997,22 @@ const keyDown = (e) => {
       escaping = false;
       shifting = false;
       break;
-    case 32: // space
+    case 46: // delete
+      deleteObj(null);
+      break;
+    case 81:
+      // console.log("q!!", obj_dict);
+      if (mode == 4) {
+        if (polylineDetecParam["toPop"]){
+          polylinePoints.pop();
+        }
+        drawInWorkspace(false);
+        polylinePoints = [];
+        polylineDetecParam["polylining"] = false;
+        polylineDetecParam["toPop"] = false;
+      }
+      break;
+    case 82: // space
       if (polylineDetecParam["toPop"]) {
         polylinePoints.pop();
         polylineDetecParam["toPop"] = false;
@@ -1022,21 +1037,7 @@ const keyDown = (e) => {
         drawInWorkspace(true);
       }
       break;
-    case 46: // delete
-      deleteObj(null);
-      break;
-    case 81:
-      // console.log("q!!", obj_dict);
-      if (mode == 4) {
-        if (polylineDetecParam["toPop"]){
-          polylinePoints.pop();
-        }
-        drawInWorkspace(false);
-        polylinePoints = [];
-        polylineDetecParam["polylining"] = false;
-        polylineDetecParam["toPop"] = false;
-      }
-      break;
+    
   }
 }
 
