@@ -33,6 +33,7 @@ var polylinePoints = [];
 
 const colors = {1:"#fff", 2: "#999", 3:"#000", 4:"#ff0", 5:"#f00", 6:"#0ff", 7:"#0f0"};
 const obj_dict = {};
+// const points = {};
 
 const createStyle = (stroke_color, stroke_width, fill_color) => {
   return (fill_color == 0? "fill:none;":`fill:${colors[fill_color]};`) +
@@ -187,6 +188,28 @@ const drawPolyLine = (stroke_color, stroke_width, fill_color, points, opts) => {
       + (opts["filter"]?"filter=url(#selectFilter)":"") +
       `/>`;
   }
+}
+
+const drawSelectionHandle = (stroke_color, stroke_width, fill_color, width, height, x, y, opts) => {
+  var r = 3;
+  return `
+    <rect`
+    + (opts["id"]?` id="${opts["id"]}"`:"") +
+    `
+    x=${x} y=${y}
+    width=${width}px height=${height}px
+    style="${createStyle(3, 1, 0)}"
+    shape-rendering="crispEdges"
+    />
+    <circle cx=${x} cy=${y} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x} cy=${y + height / 2} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x} cy=${y + height} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x + width} cy=${y} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x + width / 2} cy=${y} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x + width} cy=${y + height} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x + width} cy=${y + height / 2} r=${r} style="${createStyle(3, 1, 1)}" />
+    <circle cx=${x + width / 2} cy=${y + height} r=${r} style="${createStyle(3, 1, 1)}" />
+    `;
 }
 
 const drawFromInfo = (info) => {
@@ -1037,14 +1060,10 @@ const keyUp = (e) => {
 }
 
 function draw_example () {
-  var border_width = 1;
-  polylinePoints = [[0, 0], [20, 30], [70, 90], [510, 320],];
-  polylinePoints.push([15, 89]);
-  console.log(polylinePoints[polylinePoints.length - 1])
-  console.log(polylinePoints);
-  var d = drawPolyLine(border_color, border_width, fill_color, polylinePoints, {});
+  var d = drawSelectionHandle(1, 1, 1, 20, 40, 60, 80, {});
   console.log(d);
   svg.innerHTML += d;
+  drawSelectionHandle
 }
 
 // draw_example ();
